@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergencia Hipertensiva - Actuación en Urgencias</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #3b82f6;
+            --secondary: #0f766e;
+            --accent: #dc2626;
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --success: #16a34a;
+            --warning: #d97706;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        /* PANTALLA DE ACCESO */
+        #login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: var(--bg-card);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-box h2 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .login-box p {
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        .login-box input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 1rem;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .login-box button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .login-box button:hover {
+            background-color: var(--primary-light);
+        }
+
+        .login-error {
+            color: var(--accent);
+            margin-top: 10px;
+            font-weight: bold;
+            display: none;
+        }
+
+        /* APLICACIÓN PRINCIPAL */
+        #app-screen {
+            display: none;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        .header-subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+
+        .badges-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .badge.author {
+            background-color: var(--warning);
+            margin-left: auto;
+        }
+
+        /* NAVEGACIÓN POR PESTAÑAS */
+        .tabs-wrapper {
+            background: #ffffff;
+            border-bottom: 2px solid #e2e8f0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .swipe-notice {
+            display: none;
+            background: #f1f5f9;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--primary-light);
+            padding: 4px;
+            font-weight: bold;
+        }
+
+        .tabs-container {
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto;
+            overflow-x: auto;
+            scrollbar-width: none; /* Firefox */
+        }
+
+        .tabs-container::-webkit-scrollbar {
+            display: none; /* Chrome/Safari */
+        }
+
+        .tab-btn {
+            padding: 15px 20px;
+            border: none;
+            background: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background: #f8fafc;
+        }
+
+        /* CONTENIDO */
+        main {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 15px;
+            padding-bottom: 60px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* TARJETAS EXPANDIBLES */
+        .card {
+            background: var(--bg-card);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
+            overflow: hidden;
+            border-left: 5px solid #cbd5e1;
+        }
+
+        .card.info { border-left-color: var(--primary-light); }
+        .card.warning { border-left-color: var(--warning); }
+        .card.danger { border-left-color: var(--accent); }
+        .card.success { border-left-color: var(--secondary); }
+
+        .card-header {
+            padding: 15px 20px;
+            background: #f8fafc;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+
+        .card-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--text-dark);
+        }
+
+        .card-icon {
+            font-weight: bold;
+            transition: transform 0.3s;
+        }
+
+        .card-body {
+            padding: 20px;
+            display: none;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .card.expanded .card-body {
+            display: block;
+        }
+
+        .card.expanded .card-icon {
+            transform: rotate(180deg);
+        }
+
+        /* TABLAS COMPARATIVAS */
+        .table-responsive {
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+
+        tr:hover {
+            background-color: #f8fafc;
+        }
+
+        /* CALCULADORAS */
+        .calc-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .calc-grid { grid-template-columns: 1fr; }
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .calc-result {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            padding: 20px;
+            border-radius: 8px;
+            color: #166534;
+        }
+
+        .calc-result h4 { margin-bottom: 10px; }
+
+        .result-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--success);
+        }
+
+        /* PROTOCOLO VISUAL FLUJO */
+        .flow-step {
+            background: white;
+            border: 2px solid #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .flow-step::after {
+            content: "↓";
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            font-weight: bold;
+            display: block;
+        }
+
+        .flow-step:last-child::after { display: none; }
+
+        .flow-decision {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .branch {
+            padding: 10px;
+            border-radius: 6px;
+            background: #f8fafc;
+            border-top: 4px solid var(--primary-light);
+        }
+
+        .branch.yes { border-top-color: var(--accent); background: #fff5f5; }
+        .branch.no { border-top-color: var(--success); background: #f0fdf4; }
+
+        /* INTERFAZ DE QUIZ */
+        .quiz-selector {
+            margin-bottom: 25px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .quiz-sel-btn {
+            flex: 1;
+            padding: 12px;
+            background: #e2e8f0;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .quiz-sel-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .progress-bar-container {
+            background: #e2e8f0;
+            height: 8px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--primary-light);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .question-card {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-item {
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .option-item:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
+
+        .option-item.selected {
+            border-color: var(--primary-light);
+            background: #eff6ff;
+        }
+
+        .option-item.correct {
+            border-color: var(--success);
+            background: #f0fdf4;
+            color: #15803d;
+        }
+
+        .option-item.incorrect {
+            border-color: var(--accent);
+            background: #fff5f5;
+            color: #b91c1c;
+        }
+
+        .feedback-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            background: #f1f5f9;
+            border-left: 4px solid var(--primary);
+            display: none;
+            font-size: 0.95rem;
+        }
+
+        .quiz-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            background: var(--text-muted);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .nav-btn.primary {
+            background: var(--primary-light);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .score-screen {
+            text-align: center;
+            padding: 30px;
+            display: none;
+        }
+
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0 auto 20px;
+        }
+
+        /* RESPONSIVIDAD GENERAL */
+        @media (max-width: 768px) {
+            .swipe-notice { display: block; }
+            .badge.author { margin-left: 0; width: 100%; text-align: center; margin-top: 5px; }
+            .header-title { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <div class="login-box">
+            <h2>Acceso Restringido</h2>
+            <p>Aplicación de Formación Médica Continuada para Especialistas en Urgencias.</p>
+            <input type="text" id="pass-input" placeholder="Introduce la clave de acceso" autocomplete="off">
+            <button onclick="verificarClave()">Ingresar a la Aplicación</button>
+            <div class="login-error" id="login-err-msg">Clave incorrecta. Revisa e intenta de nuevo.</div>
+        </div>
+    </div>
+
+    <div id="app-screen">
+        <header>
+            <div class="header-container">
+                <div class="header-title">EMERGENCIA HIPERTESIVA</div>
+                <div class="header-subtitle">Actuación Inmediata, Estrategias de Perfusión Dinámica y Abordaje Basado en la Evidencia</div>
+                <div class="badges-container">
+                    <span class="badge">AHA/ACC Hypertension Guidelines</span>
+                    <span class="badge">ESC/ESH 2024</span>
+                    <span class="badge">Semicyuc 2025</span>
+                    <span class="badge author">Autor: Dr. L. Croce</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="tabs-wrapper">
+            <div class="swipe-notice">← Desliza horizontalmente para ver más pestañas →</div>
+            <div class="tabs-container">
+                <button class="tab-btn active" onclick="switchTab(0)">1. Clasificación</button>
+                <button class="tab-btn" onclick="switchTab(1)">2. Evaluación Inicial</button>
+                <button class="tab-btn" onclick="switchTab(2)">3. Objetivos PAM</button>
+                <button class="tab-btn" onclick="switchTab(3)">4. Arsenal EV</button>
+                <button class="tab-btn" onclick="switchTab(4)">5. Escenarios</button>
+                <button class="tab-btn" onclick="switchTab(5)">6. Calculadoras</button>
+                <button class="tab-btn" onclick="switchTab(6)">7. Protocolo</button>
+                <button class="tab-btn" onclick="switchTab(7)">8. Evaluaciones</button>
+            </div>
+        </div>
+
+        <main>
+            <div id="tab-0" class="tab-content active">
+                <div class="card danger expanded">
+                    <div class="card-header" onclick="toggleCard(this)">
+                        <span class="card-title">Emergencia Hipertensiva vs. Urgencia</span>
+                        <span class="card-icon">▼</span>
+                    </div>
+                    <div class="card-body">
+                        <p>La diferenciación operativa en urgencias no radica en la cifra absoluta de la presión arterial, sino en la **presencia de daño agudo a órganos diana (DOD)**.</p>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Característica</th>
+                                        <th>Emergencia Hipertensiva</th>
+                                        <th>Urgencia Hipertensiva</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Cifras de PA</strong></td>
+                                        <td>Generalmente PAS ≥ 180 mmHg o PAD ≥ 120 mmHg (puede ser menor en gestantes/niños).</td>
+                                        <td>PAS ≥ 180 mmHg o PAD ≥ 120 mmHg.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Daño a Órgano Diana</strong></td>
+                                        <td><strong style="color:var(--accent);">Presente, agudo y evolutivo</strong> (Cerebro, Corazón, Riñón, Retina, Grandes Vasos).</td>
+                                        <td>Ausente o crónico estable.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Tratamiento</strong></td>
+                                        <td>**Endovenoso (EV)** continuo con monitorización invasiva en UCI/Shock Room.</td>
+                                        <td>**Oral (VO)** con fármacos de acción corta o ajuste de terapia de base.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Tiempo de Reducción</strong></td>
+                                        <td>Minutos a horas según el escenario específico.</td>
+                                        <td>24 a 48 horas. No requiere descenso rápido en urgencias.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-1" class="tab-content">
+                <div class="card info expanded">
+                    <div class="card-header" onclick="toggleCard(this)">
+                        <span class="card-title">Anamnesis y Examen Físico Crítico</span>
+                        <span class="card-icon">▼</span>
+                    </div>
+                    <div class="card-body">
+                        <ul>
+                            <li><strong>Interrogatorio dirigido:</strong> Síntomas neurológicos (cefalea holocraneana severa, visión borrosa, déficit motor o sensitivo, alteración del sensorio), dolor torácico opresivo, disnea de instauración súbita, o antecedente de consumo de simpaticomiméticos (cocaína, anfetaminas).</li>
+                            <li><strong>Exploración física exhaustiva:</strong> Palpación de pulsos simétricos en las 4 extremidades (descarte de disección aórtica), auscultación cardiopulmonar buscando soplos nuevos o estertores crepitantes, y examen neurológico completo.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card warning">
+                    <div class="card-header" onclick="toggleCard(this)">
+                        <span class="card-title">Exámenes Complementarios Esenciales</span>
+                        <span class="card-icon">▼</span>
+                    </div>
+                    <div class="card-body">
+                        <p>No retrasar las medidas terapéuticas iniciales por exámenes de laboratorio si la sospecha clínica de daño orgánico es inminente.</p>
+                        <ul>
+                            <li><strong>Electrocardiograma (EKG) de 12 derivadas:</strong> Descarte de isquemia miocárdica aguda o signos de hipertrofia ventricular izquierda con sobrecarga.</li>
+                            <li><strong>Analítica Sanguínea:</strong> Hemograma (esquizocitos para descartar MAT), función renal (Creatinina, BUN), electrolitos séricos y biomarcadores cardíacos (Troponinas ultrasensibles).</li>
+                            <li><strong>Fondo de Ojo:</strong> Indispensable para identificar retinopatía hipertensiva grado III (hemorragias, exudados) o grado IV (papiledema).</li>
+                            <li><strong>Imagen Avanzada:</strong> TC de cráneo simple ante focalidad neurológica; AngioTC de tórax/abdomen si hay sospecha clínica de disección de aorta.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-2" class="tab-content">
+                <div class="card warning expanded">
+                    <div class="card-header" onclick="toggleCard(this)">
+                        <span class="card-title">La Regla General de Descenso Seguro</span>
+                        <span class="card-icon">▼</span>
+                    </div>
+                    <div class="card-body">
+                        <p>El error más común en urgencias es normalizar la presión arterial con rapidez. La autorregulación del flujo sanguíneo cerebral (FSC) está desplazada hacia la derecha en pacientes crónicamente hipertensos.</p>
+                        <blockquote>
+                            <strong>Principio Fundamental:</strong> En la gran mayoría de las emergencias hipertensivas, el objetivo inicial es disminuir la <strong>Presión Arterial Media (PAM) no más de un 20% a 25%</strong> dentro de la primera hora, estabilizando luego hacia valores de 160/100-110 mmHg en las siguientes 2 a 6 horas.
+                        </blockquote>
+                        <p style="margin-top:15px; color:var(--accent); font-weight:bold;">Excepciones Absolutas a esta Regla (Requieren descenso drástico e inmediato):</p>
+                        <ul>
+                            <li>Disección Aórtica Aguda (Meta: PAS < 120 mmHg y FC < 60 lpm en 10-20 min).</li>
+                            <li>Eclampsia o Crisis Renal Esclerodérmica.</li>
+                            <li>Accidente Cerebrovascular Isquémico candidato a trombolisis (Descenso controlado < 185/110 mmHg).</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-3" class="tab-content">
+                <div class="card info expanded">
+                    <div class="card-header" onclick="toggleCard(this)">
+                        <span class="card-title">Fármacos Endovenosos de Primera Línea</span>
+                        <span class="card-icon">▼</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Fármaco</th>
+                                        <th>Dosis e Infusión</th>
+                                        <th>Mecanismo y Ventajas</th>
+                                        <th>Contraindicaciones Clínicas</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Labetalol</strong></td>
+                                        <td>Bolo EV de 20 mg en 2 min; luego 20-80 mg cada 10 min o infusión a 0.5-2 mg/min.</td>
+                                        <td>Bloqueo α1 y β no selectivo. Mantiene el FSC. Excelente perfil en patología aórtica y gestacional.</td>
+                                        <td>Asma/EPOC severo, Bloqueo AV de 2º o 3º grado, Insuficiencia cardíaca aguda descompensada.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Nicardipina</strong></td>
+                                        <td>Iniciar a 5 mg/h EV; aumentar 2.5 mg/h cada 5-15 min hasta un máximo de 15 mg/h.</td>
+                                        <td>Calcioantagonista dihidropiridínico selectivo vascular. Excelente perfil en neurocríticos.</td>
+                                        <td>Estenosis aórtica severa. Cuidado en falla hepática avanzada.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Nitroprusiato de Sodio</strong></td>
+                                        <td>0.25 - 10 mcg/kg/min EV en infusión continua continua protegida de la luz.</td>
+                                        <td>Vasodilatador venoso y arterial potente de acción inmediata y ultracorta.</td>
+                                        <td>Insuficiencia renal o hepática (riesgo de intoxicación por tiocianato/cianuro). Isquemia miocárdica (robo coronario).</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Nitroglicerina</strong></td>
+                                        <td>5 - 100 mcg/min EV en infusión continua ajustable cada 5 minutos.</td>
+                                        <td>Venodilatador predominante. Reduce la precarga de manera muy efectiva. Elección en SCA y edema pulmonar.</td>
+                                        <td>Uso concomitante de inhibidores de la fosfodiesterasa-5 (Sildenafilo), infarto de ventrículo derecho.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-4" class="tab-content">
+                <div class="card danger expanded">
+                    <div class="card-header" onclick="toggleCard(this)">
+                        <span class="card-title">Estrategias Clínicas Específicas</span>
+                        <span class="card-icon">▼</span>
+                    </div>
+                    <div class="card-body">
+                        <p>Cada órgano afectado impone una velocidad y un límite terapéutico único:</p>
+                        <br>
+                        <h4 style="color:var(--accent);">1. Disección Aórtica Aguda</h4>
+                        <p>No use vasodilatadores puros (Nitroprusiato, Hidralazina) antes de controlar la frecuencia cardíaca. La taquicardia refleja aumentará la fuerza de cizallamiento y la progresión de la disección. Use **Esmolol** o **Labetalol** primero para llevar la FC < 60 lpm, y luego baje la PAS < 120 mmHg.</p>
+                        <br>
+                        <h4 style="color:var(--primary-light);">2. Síndrome Coronario Agudo (SCA)</h4>
+                        <p>El fármaco de elección indiscutible es la **Nitroglicerina EV**. Reduce la demanda miocárdica de oxígeno y alivia el espasmo coronario. Combine con β-bloqueadores si la FC permanece elevada y no hay signos de insuficiencia de bomba.</p>
+                        <br>
+                        <h4 style="color:var(--secondary);">3. Ictus Isquémico Agudo</h4>
+                        <p>Solo se interviene la PA si la cifra supera **220/120 mmHg** (reducir un 15% en 24h) a menos que el paciente califique para trombólisis/trombectomía, en cuyo caso la meta estricta es mantener la PA por debajo de **185/110 mmHg** antes del fibrinolítico y < 180/105 mmHg durante las siguientes 24 horas.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-5" class="tab-content">
+                <div class="card success expanded">
+                    <div class="card-header" onclick="toggleCard(this)">
+                        <span class="card-title">Calculadora de Presión Arterial Media (PAM) y Metas de Reducción</span>
+                        <span class="card-icon">▼</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="calc-grid">
+                            <div>
+                                <div class="form-group">
+                                    <label for="pas-in">Presión Arterial Sistólica (PAS) - mmHg:</label>
+                                    <input type="number" id="pas-in" value="200" oninput="calcularMetas()">
+                                </div>
+                                <div class="form-group">
+                                    <label for="pad-in">Presión Arterial Diastólica (PAD) - mmHg:</label>
+                                    <input type="number" id="pad-in" value="120" oninput="calcularMetas()">
+                                </div>
+                            </div>
+                            <div class="calc-result">
+                                <h4>Resultados en Tiempo Real:</h4>
+                                <p>PAM Actual: <span id="pam-actual" class="result-value">146.7</span> mmHg</p>
+                                <p>Rango Meta de PAM para la 1ª hora (Reducción 20% - 25%):</p>
+                                <p><strong>Límite Superior (20%):</strong> <span id="pam-meta-20" style="font-weight:bold; color:var(--accent);">117.3</span> mmHg</p>
+                                <p><strong>Límite Inferior (25%):</strong> <span id="pam-meta-25" style="font-weight:bold; color:var(--secondary);">110.0</span> mmHg</p>
+                                <p style="font-size:0.8rem; margin-top:10px; color:var(--text-muted);">*Fórmula aplicada: PAM = PAD + [(PAS - PAD) / 3]</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-6" class="tab-content">
+                <h3 style="margin-bottom:15px; color:var(--primary);">Algoritmo de Decisiones en la Emergencia</h3>
+                <div class="flow-step">
+                    <strong>Paso 1: Confirmación de Cifras y Monitorización</strong>
+                    <p>Paciente con PA ≥ 180/120 mmHg. Colocar línea arterial, monitorizar EKG continuo y saturometría de O2. Realizar anamnesis dirigida.</p>
+                </div>
+                <div class="flow-step">
+                    <strong>Paso 2: Evaluación Clínico-Analítica Inmediata</strong>
+                    <p>¿Hay signos inequívocos de disfunción orgánica aguda o de instauración reciente?</p>
+                    <div class="flow-decision">
+                        <div class="branch yes">
+                            <strong>SÍ (Emergencia Hipertensiva)</strong>
+                            <p>Proceder a canalizar vía central/periférica gruesa. Iniciar infusión continua de fármacos EV específicos del escenario.</p>
+                        </div>
+                        <div class="branch no">
+                            <strong>NO (Urgencia Hipertensiva)</strong>
+                            <p>Iniciar o ajustar medicación vía oral. Mantener en observación por 2-4h. Alta con control ambulatorio estrecho.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <strong>Paso 3: Ajuste Dinámico de la Terapia</strong>
+                    <p>Evaluar PAM cada 5-10 minutos. Si la reducción supera el 25% en la primera hora y el paciente presenta somnolencia o angina, ralentizar de inmediato la infusión.</p>
+                </div>
+            </div>
+
+            <div id="tab-7" class="tab-content">
+                <div class="quiz-selector">
+                    <button class="quiz-sel-btn active" id="btn-q-0" onclick="selectQuiz(0)">Quiz 1: Fisiopatología</button>
+                    <button class="quiz-sel-btn" id="btn-q-1" onclick="selectQuiz(1)">Quiz 2: Cardio y Gestación</button>
+                    <button class="quiz-sel-btn" id="btn-q-2" onclick="selectQuiz(2)">Quiz 3: Neuro y Avanzado</button>
+                </div>
+
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="quiz-progress"></div>
+                </div>
+
+                <div id="quiz-area">
+                    <div class="question-card">
+                        <div class="question-text" id="q-text">Cargando pregunta...</div>
+                        <div class="options-list" id="options-box"></div>
+                        <div class="feedback-box" id="feedback-box"></div>
+                    </div>
+                    <div class="quiz-nav">
+                        <button class="nav-btn" id="btn-prev" onclick="navigateQuestion(-1)">Anterior</button>
+                        <button class="nav-btn" onclick="restartQuiz()" style="background-color: var(--accent);">Reiniciar</button>
+                        <button class="nav-btn primary" id="btn-next" onclick="navigateQuestion(1)">Siguiente</button>
+                    </div>
+                </div>
+
+                <div class="score-screen" id="score-screen">
+                    <div class="score-circle" id="score-text">0/8</div>
+                    <h3 id="score-title">¡Evaluación Finalizada!</h3>
+                    <p id="score-msg" style="margin-top:10px; font-weight:500;"></p>
+                    <button class="nav-btn primary" onclick="restartQuiz()" style="margin-top:20px;">Volver a Intentar este Quiz</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // CLAVES DE ACCESO REQUERIDAS POR REQUERIMIENTO
+        var CLAVES = ["CROCE2024", "MEDICO01", "URGENCIAS1"];
+
+        function verificarClave() {
+            var inputVal = document.getElementById("pass-input").value.trim().toUpperCase();
+            if (CLAVES.includes(inputVal)) {
+                document.getElementById("login-screen").style.display = "none";
+                document.getElementById("app-screen").style.display = "block";
+                calcularMetas(); // Inicializar calculadora
+                initQuiz();      // Inicializar banco de preguntas
+            } else {
+                var errMsg = document.getElementById("login-err-msg");
+                errMsg.style.display = "block";
+                errMsg.style.animation = "shake 0.3s";
+            }
+        }
+
+        // TABS ENGINE
+        function switchTab(index) {
+            const tabs = document.querySelectorAll('.tab-content');
+            const buttons = document.querySelectorAll('.tab-btn');
+            
+            tabs.forEach((tab, idx) => {
+                tab.classList.toggle('active', idx === index);
+            });
+            buttons.forEach((btn, idx) => {
+                btn.classList.toggle('active', idx === index);
+            });
+        }
+
+        function toggleCard(headerElement) {
+            const card = headerElement.parentElement;
+            card.classList.toggle('expanded');
+        }
+
+        // CALCULADORA REAL-TIME
+        function calcularMetas() {
+            var pas = parseFloat(document.getElementById("pas-in").value) || 0;
+            var pad = parseFloat(document.getElementById("pad-in").value) || 0;
+
+            if (pas > 0 && pad > 0) {
+                var pam = pad + ((pas - pad) / 3);
+                var meta20 = pam * 0.80;
+                var meta25 = pam * 0.75;
+
+                document.getElementById("pam-actual").textContent = pam.toFixed(1);
+                document.getElementById("pam-meta-20").textContent = meta20.toFixed(1);
+                document.getElementById("pam-meta-25").textContent = meta25.toFixed(1);
+            }
+        }
+
+        // BANCO DE PREGUNTAS DEL QUIZ (3 QUIZZES INDEPENDIENTES x 8 PREGUNTAS CADA UNO)
+        var quizDatabase = [
+            // Quiz 0: Fisiopatología y Conceptos Generales
+            [
+                {
+                    text: "¿Cuál es el factor determinante crítico para diagnosticar una Emergencia Hipertensiva en el departamento de urgencias?",
+                    options: ["Una Presión Arterial Sistólica superior a 210 mmHg.", "La presencia de daño agudo y progresivo a un órgano diana.", "El antecedente familiar de enfermedad cerebrovascular.", "La confirmación de hipertensión arterial crónica no tratada."],
+                    correct: 1,
+                    feedback: "Correcto. El pilar diagnóstico fundamental de la emergencia hipertensiva no es la cifra absoluta de presión, sino la evidencia de daño agudo a órganos vitales (cerebro, corazón, riñones, etc.)."
+                },
+                {
+                    text: "Como regla general, ¿cuál es el porcentaje de reducción máximo recomendado de la PAM durante la primera hora en una emergencia hipertensiva no complicada?",
+                    options: ["10% a 15%", "20% a 25%", "35% a 40%", "Reducción inmediata hasta alcanzar valores menores a 120/80 mmHg."],
+                    correct: 1,
+                    feedback: "Correcto. Salvo excepciones como la disección aórtica, disminuir la PAM más de un 20-25% en la primera hora puede provocar hipoperfusión tisular crítica e infarto en territorios arteriales limítrofes."
+                },
+                {
+                    text: "¿Qué fenómeno fisiopatológico explica el daño endotelial en las crisis hipertensivas?",
+                    options: ["Fallo de los mecanismos de autorregulación vascular con necrosis fibrinoide de las arteriolas.", "Aumento compensatorio de la producción basal de óxido nítrico.", "Bradicardia refleja mediada por barorreceptores.", "Disminución de la permeabilidad capilar sistémica."],
+                    correct: 0,
+                    feedback: "Correcto. El aumento brusco de la PA vence la autorregulación, dañando el endotelio y desencadenando necrosis fibrinoide arteriolar, agregación plaquetaria y activación de la cascada de coagulación."
+                },
+                {
+                    text: "Un paciente de 55 años debuta con PA de 190/115 mmHg, cefalea leve, sin déficit neurológico ni dolor torácico. El examen de fondo de ojo es normal. ¿Cuál es la conducta correcta?",
+                    options: ["Iniciar infusión EV inmediata con Nitroprusiato de Sodio.", "Administrar bolo EV de Labetalol 20 mg de forma inmediata.", "Manejar como Urgencia Hipertensiva mediante terapia oral y control ambulatorio en 24-48 horas.", "Derivar inmediatamente a la Unidad de Cuidados Intensivos."],
+                    correct: 2,
+                    feedback: "Correcto. Al no presentar signos clínicos ni paraclínicos de daño orgánico agudo, se clasifica como Urgencia Hipertensiva. El manejo farmacológico óptimo es por vía oral, evitando descensos tensionales bruscos."
+                },
+                {
+                    text: "¿Qué alteración visual objetivada en el fondo de ojo clasifica a una crisis como Emergencia Hipertensiva Maligna?",
+                    options: ["Exudados algodonosos y/o papiledema.", "Cruces arteriovenosos patológicos patognomónicos.", "Disminución leve del calibre arteriolar generalizado.", "Presencia aislada de drusas maculares."],
+                    correct: 0,
+                    feedback: "Correcto. La presencia de retinopatía avanzada (hemorragias, exudados o papiledema) define la hipertensión maligna, que se asocia fuertemente con microangiopatía trombótica y daño renal agudo."
+                },
+                {
+                    text: "¿Cuál es el principal riesgo hemodinámico derivado del uso prolongado o a dosis máximas del Nitroprusiato de Sodio?",
+                    options: ["Hipernatremia severa refractaria.", "Toxicidad por acumulación de cianuro y tiocianato.", "Hipertensión de rebote inmediata mediada por renina.", "Bloqueo auriculoventricular de alto grado."],
+                    correct: 1,
+                    feedback: "Correcto. El nitroprusiato se metaboliza liberando cianuro. En infusiones prolongadas (>48h) o en pacientes con insuficiencia renal/hepática, existe un alto riesgo de toxicidad celular grave."
+                },
+                {
+                    text: "¿Qué fármaco antihipertensivo de uso común puede desencadenar una crisis adrenérgica grave por rebote si se suspende de forma abrupta?",
+                    options: ["Enalapril", "Clonidina", "Amlodipina", "Furosemida"],
+                    correct: 1,
+                    feedback: "Correcto. La suspensión brusca de clonidina (un agonista alfa-2 central) genera un cese del feedback inhibitorio simpático, provocando una masiva liberación de catecolaminas con rebote hipertensivo severo."
+                },
+                {
+                    text: "¿Cuál es la técnica óptima recomendada para monitorizar la PA durante la fase aguda de una emergencia hipertensiva?",
+                    options: ["Toma manual intermitente con esfigmomanómetro aneroide cada 30 minutos.", "Monitorización invasiva continua mediante línea arterial radial o femoral.", "Dispositivo automático oscilométrico de brazo (PA控).", "Palpación directa del pulso carotídeo proximal."],
+                    correct: 1,
+                    feedback: "Correcto. Dada la labilidad hemodinámica del paciente crítico y la potencia de los fármacos EV utilizados, la colocación de una línea arterial proporciona lecturas reales latido a latido, garantizando la seguridad terapéutica."
+                }
+            ],
+            // Quiz 1: Escenarios Cardiovasculares y Gestacionales
+            [
+                {
+                    text: "Paciente de 48 años acude con dolor torácico desgarrante irradiado a región interescapular y PA de 210/120 mmHg. Se sospecha Disección Aórtica Aguda. ¿Cuáles son las metas hemodinámicas inmediatas?",
+                    options: ["PAS < 160 mmHg y FC < 100 lpm en 2 horas.", "Disminuir la PAM un 25% en la primera hora mediante vasodilatadores puros.", "PAS < 120 mmHg y FC < 60 lpm dentro de los primeros 10 a 20 minutos.", "Mantener la PA elevada para asegurar la perfusión de la falsa luz."],
+                    correct: 2,
+                    feedback: "Correcto. En la disección aórtica aguda se requiere un control ultrarrápido y drástico del doble producto (PAS x FC) para disminuir la fuerza de cizallamiento sobre la pared de la aorta. Metas: PAS < 120 mmHg y FC < 60 lpm."
+                },
+                {
+                    text: "¿Por qué está contraindicado iniciar el tratamiento con un vasodilatador arterial puro (como la Hidralazina) en la Disección Aórtica Aguda?",
+                    options: ["Porque produce bradicardia extrema refleja.", "Porque induce taquicardia refleja y aumento de la fuerza de eyección ventricular, empeorando el desgarro.", "Porque altera de forma irreversible la contractilidad miocárdica derecha.", "Porque bloquea la perfusión arterial coronaria retrógrada."],
+                    correct: 1,
+                    feedback: "Correcto. Los vasodilatadores puros activan de forma refleja el sistema nervioso simpático, aumentando la FC y la fuerza de contracción ventricular. Esto amplía la disección. Primero se debe bloquear el receptor beta (p. ej., con Esmolol)."
+                },
+                {
+                    text: "¿Cuál es el fármaco endovenoso de elección ante un paciente con Emergencia Hipertensiva concomitante con un Síndrome Coronario Agudo con elevación del ST?",
+                    options: ["Nitroglicerina EV", "Nitroprusiato de Sodio", "Esmolol en bolo aislado", "Metildopa EV"],
+                    correct: 0,
+                    feedback: "Correcto. La nitroglicerina a dosis bajas produce venodilatación (disminuye precarga) y a dosis altas vasodilatación coronaria, mejorando directamente el flujo sanguíneo hacia el miocardio isquémico."
+                },
+                {
+                    text: Llega un paciente con Edema Agudo de Pulmón Cardiógeno, disnea grave, ortopnea y PA de 200/110 mmHg. ¿Qué combinación terapéutica EV es la recomendada en urgencias?",
+                    options: ["Labetalol EV continuo + Infusión de solución salina.", "Nitroglicerina EV en infusión continua + Furosemida EV.", "Amlodipina vía oral + Bloqueadores de canales de calcio.", "Nitroprusiato a dosis máximas + Propropanol EV."],
+                    correct: 1,
+                    feedback: "Correcto. La nitroglicerina EV reduce rápidamente la precarga y poscarga cardíacas, aliviando la congestión pulmonar, mientras que la furosemida coadyuva reduciendo el volumen intravascular."
+                },
+                {
+                    text: "Gestante de 34 semanas presenta PA de 170/115 mmHg, proteinuria, cefalea intensa y epigastralgia. ¿Cuál es la meta de presión arterial recomendada para prevenir complicaciones cerebrovasculares?",
+                    options: ["Disminuir la PA inmediatamente por debajo de 120/80 mmHg.", "Mantener la PAS entre 140-150 mmHg y la PAD entre 90-100 mmHg.", "No intervenir farmacológicamente hasta el inicio del trabajo de parto.", "Reducir la PAS a < 100 mmHg para proteger la placenta."],
+                    correct: 1,
+                    feedback: "Correcto. En la preeclampsia/eclampsia grave, el objetivo es evitar la hemorragia cerebral materna sin comprometer la perfusión útero-placentaria. La meta es mantener la PAS < 160 mmHg y la PAD < 110 mmHg."
+                },
+                {
+                    text: "¿Cuál de los siguientes fármacos antihipertensivos está estrictamente contraindicado en mujeres gestantes con emergencias hipertensivas?",
+                    options: ["Labetalol", "Enalaprilato (IECA)", "Nifedipina", "Hidralazina"],
+                    correct: 1,
+                    feedback: "Correcto. Los IECA y los ARA-II están contraindicados durante el embarazo debido a su alta toxicidad fetal reportada, que incluye disgenesia renal, oligohidramnios e hipoplasia pulmonar."
+                },
+                {
+                    text: "¿Qué fármaco se debe administrar de forma prioritaria para la prevención y control de crisis convulsivas en una paciente con criterios de Preeclampsia Grave / Eclampsia?",
+                    options: ["Diazepam EV", "Fenitoína sódica", "Sulfato de Magnesio", "Levetiracetam EV"],
+                    correct: 2,
+                    feedback: "Correcto. El Sulfato de Magnesio es el fármaco de elección indiscutible según la evidencia internacional, demostrando una eficacia muy superior a las benzodiacepinas para prevenir y tratar las convulsiones eclánticas."
+                },
+                {
+                    text: "Un paciente de 60 años con insuficiencia cardíaca con fracción de eyección reducida (FEVI 28%) presenta una emergencia hipertensiva. ¿Qué fármaco debe evitarse?",
+                    options: ["Nitroglicerina", "Labetalol en bolos agresivos", "Nitroprusiato a dosis bajas", "Nicardipina"],
+                    correct: 1,
+                    feedback: "Correcto. Los betabloqueadores EV con efecto inotrópico negativo pronunciado (como el Labetalol) pueden precipitar un choque cardiogénico agudo o empeorar drásticamente la falla de bomba en fases agudas descompensadas."
+                }
+            ],
+            // Quiz 2: Escenarios Neurológicos y Manejo Avanzado
+            [
+                {
+                    text: "Paciente con Ictus Isquémico Agudo de 2 horas de evolución es candidato a terapia fibrinolítica con r-tPA. Su PA inicial es de 200/115 mmHg. ¿Cuál es la conducta correcta con respecto a su presión arterial?",
+                    options: ["No tratar la PA bajo ninguna circunstancia.", "Disminuir la PA por debajo de 185/110 mmHg mediante agentes EV de acción corta antes de infundir el r-tPA.", "Bajar la PA agresivamente a menos de 130/80 mmHg en 15 minutos.", "Administrar fibrinolítico de inmediato sin considerar la cifra tensional."],
+                    correct: 1,
+                    feedback: "Correcto. Para minimizar el riesgo de transformación hemorrágica intraparenquimatosa secundaria, la PA debe controlarse estrictamente por debajo de 185/110 mmHg antes de iniciar la infusión del r-tPA."
+                },
+                {
+                    text: "Si el mismo paciente con Ictus Isquémico Agudo NO es candidato a fibrinólisis ni trombectomía mecánica, ¿a partir de qué umbral tensional se recomienda intervenir farmacológicamente la PA en urgencias?",
+                    options: ["PA > 140/90 mmHg", "PA > 180/110 mmHg", "PA > 220/120 mmHg", "Solo si presenta signos clínicos concomitantes de infarto de miocardio."],
+                    correct: 2,
+                    feedback: "Correcto. En el ictus isquémico no reperfundido, la elevación de la PA protege la penumbra isquémica. Solo se interviene si supera 220 mmHg de sistólica o 120 mmHg de diastólica, reduciendo un 15% inicial."
+                },
+                {
+                    text: "Paciente de 62 años cursa con Hemorragia Intracerebral Aguda espontánea con PAS inicial de 190 mmHg dentro de las primeras 6 horas del evento. Según guías actuales, ¿cuál es el objetivo de control de la PAS?",
+                    options: ["Reducir de forma segura y rápida la PAS a un rango entre 130 y 140 mmHg.", "Mantener la PAS por encima de 180 mmHg para evitar isquemia perihematoma.", "Descender la PAS a valores menores de 100 mmHg.", "Permitir valores libres sin intervención durante las primeras 48 horas."],
+                    correct: 0,
+                    feedback: "Correcto. En la hemorragia intracerebral aguda, el control agudo y mantenido de la PAS a un rango meta de 130-140 mmHg ha demostrado reducir de forma segura la expansión del hematoma sin aumentar eventos isquémicos."
+                },
+                {
+                    text: "Paciente presenta cefalea intensa, desorientación fluctuante, diplopía, y fondo de ojo con papiledema bilateral. Su PA es de 220/130 mmHg. No hay focalidad motora. ¿Cuál es el diagnóstico de sospecha más probable?",
+                    options: ["Ictus Isquémico extenso de territorio anterior.", "Encefalopatía Hipertensiva.", "Hemorragia Subaracnoidea Grado I.", "Crisis de Ansiedad generalizada con reactividad tensional."],
+                    correct: 1,
+                    feedback: "Correcto. La tríada de elevación tensional extrema, alteración del sensorio/neuropsiquiátrica fluctuante y signos de edema de papila sin focalidad motora neta tipifica a la Encefalopatía Hipertensiva."
+                },
+                {
+                    text: "¿Por qué el Nitroprusiato de Sodio debe utilizarse con extrema precaución en pacientes con hipertensión endocraneana o patología neurocrítica aguda?",
+                    options: ["Porque genera vasoespasmo cerebral difuso severo.", "Porque es un vasodilatador cerebral que puede aumentar el volumen sanguíneo cerebral y, consecuentemente, elevar aún más la Presión Intracraneal (PIC).", "Porque metaboliza directamente en el líquido cefalorraquídeo.", "Porque produce sedación profunda central que enmascara el examen neurológico."],
+                    correct: 1,
+                    feedback: "Correcto. Al causar vasodilatación de los vasos de capacitancia cerebrales, el nitroprusiato incrementa el flujo y volumen sanguíneo intracraneal, lo cual eleva la PIC en cerebros con distensibilidad comprometida."
+                },
+                {
+                    text: "¿Cuál es el manejo inicial correcto ante una crisis hipertensiva desencadenada por un Feocromocitoma?",
+                    options: ["Iniciar de inmediato un Betabloqueador puro como Propropanol EV.", "Lograr un bloqueo de receptores Alfa-adrenérgicos (p. ej., Fentolamina) ANTES de iniciar cualquier bloqueo Beta-adrenérgico.", "Administrar Nitroglicerina sublingual de manera seriada.", "Efectuar cardioversión eléctrica sincronizada profiláctica."],
+                    correct: 1,
+                    feedback: "Correcto. Si se instaura un bloqueo beta aislado de entrada, se inhibe la vasodilatación mediada por receptores beta-2, dejando los receptores alfa totalmente libres para ser estimulados por catecolaminas, agravando la vasoconstricción y la crisis."
+                },
+                {
+                    text: "Un paciente crítico experimenta debilidad muscular generalizada, acidosis metabólica severa con brecha aniónica elevada y alteración psicomotriz tras 72 horas de infusión continua de Nitroprusiato. ¿Qué complicación debe sospechar?",
+                    options: ["Síndrome de lisis tumoral agudo.", "Intoxicación celular por Cianuro/Tiocianato.", "Efecto adverso idiosincrásico inducido por Labetalol.", "Crisis miasténica sobreañadida."],
+                    correct: 1,
+                    feedback: "Correcto. La acidosis metabólica con hiato aniónico (secundaria a hipoxia celular/láctica), junto con la disfunción neurológica, son signos clínicos cardinales de intoxicación sistémica por cianuro."
+                },
+                {
+                    text: "¿Qué calcioantagonista de administración EV continua destaca por su excelente selectividad vascular y seguridad en el manejo de emergencias neurológicas hipertensivas?",
+                    options: ["Verapamilo", "Diltiazem", "Nicardipina", "Nifedipina"],
+                    correct: 2,
+                    feedback: "Correcto. La Nicardipina EV ofrece un control predecible, rápido y suave de la PA sin aumentar de manera significativa la presión intracraneal ni producir taquicardias reflejas inestables."
+                }
+            ]
+        ];
+
+        var currentQuizIndex = 0;
+        var currentQuestionIndex = 0;
+        var userAnswers = []; // Almacena el índice seleccionado por el usuario
+
+        function initQuiz() {
+            selectQuiz(0);
+        }
+
+        function selectQuiz(quizIndex) {
+            currentQuizIndex = quizIndex;
+            currentQuestionIndex = 0;
+            userAnswers = new Array(8).fill(null);
+            
+            // Actualizar UI botones selector
+            for (let i = 0; i < 3; i++) {
+                document.getElementById(`btn-q-${i}`).classList.toggle('active', i === quizIndex);
+            }
+            
+            document.getElementById("score-screen").style.display = "none";
+            document.getElementById("quiz-area").style.display = "block";
+            
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            var currentQuiz = quizDatabase[currentQuizIndex];
+            var question = currentQuiz[currentQuestionIndex];
+            
+            // Actualizar barra progreso
+            var progressPercent = ((currentQuestionIndex + 1) / currentQuiz.length) * 100;
+            document.getElementById("quiz-progress").style.width = progressPercent + "%";
+
+            // Renderizar texto pregunta
+            document.getElementById("q-text").innerHTML = `Pregunta ${currentQuestionIndex + 1} de 8: <br><br>${question.text}`;
+
+            // Renderizar opciones
+            var optionsBox = document.getElementById("options-box");
+            optionsBox.innerHTML = "";
+
+            var feedbackBox = document.getElementById("feedback-box");
+            feedbackBox.style.display = "none";
+
+            var alreadyAnswered = userAnswers[currentQuestionIndex] !== null;
+
+            question.options.forEach((option, idx) => {
+                var optionItem = document.createElement("div");
+                optionItem.className = "option-item";
+                optionItem.textContent = option;
+
+                if (alreadyAnswered) {
+                    if (idx === question.correct) {
+                        optionItem.classList.add("correct");
+                    } else if (idx === userAnswers[currentQuestionIndex]) {
+                        optionItem.classList.add("incorrect");
+                    }
+                } else {
+                    optionItem.onclick = function() { selectOption(idx); };
+                }
+
+                optionsBox.appendChild(optionItem);
+            });
+
+            if (alreadyAnswered) {
+                feedbackBox.innerHTML = `<strong>Explicación Clínica:</strong> ${question.feedback}`;
+                feedbackBox.style.display = "block";
+            }
+
+            // Control de deshabilitar botones navegación
+            document.getElementById("btn-prev").disabled = currentQuestionIndex === 0;
+            document.getElementById("btn-next").textContent = (currentQuestionIndex === currentQuiz.length - 1) ? "Finalizar Quiz" : "Siguiente";
+        }
+
+        function selectOption(selectedIdx) {
+            userAnswers[currentQuestionIndex] = selectedIdx;
+            renderQuestion(); // Re-renderizar bloquea opciones y muestra feedback clínico directo
+        }
+
+        function navigateQuestion(direction) {
+            var currentQuiz = quizDatabase[currentQuizIndex];
+            
+            if (direction === 1 && userAnswers[currentQuestionIndex] === null) {
+                alert("Por favor, selecciona una opción antes de continuar.");
+                return;
+            }
+
+            currentQuestionIndex += direction;
+
+            if (currentQuestionIndex >= currentQuiz.length) {
+                showFinalScore();
+            } else {
+                renderQuestion();
+            }
+        }
+
+        function restartQuiz() {
+            selectQuiz(currentQuizIndex);
+        }
+
+        function showFinalScore() {
+            var currentQuiz = quizDatabase[currentQuizIndex];
+            var score = 0;
+
+            userAnswers.forEach((ans, idx) => {
+                if (ans === currentQuiz[idx].correct) score++;
+            });
+
+            document.getElementById("quiz-area").style.display = "none";
+            var scoreScreen = document.getElementById("score-screen");
+            scoreScreen.style.display = "block";
+
+            document.getElementById("score-text").textContent = `${score} / 8`;
+
+            var msgElement = document.getElementById("score-msg");
+            if (score === 8) {
+                msgElement.innerHTML = "🎯 <strong>¡Excelente, puntaje perfecto!</strong> Demuestras un dominio absoluto de los criterios terapéuticos de alta especialización.";
+            } else if (score >= 6) {
+                msgElement.innerHTML = "👍 <strong>¡Buen rendimiento!</strong> Posees bases sólidas para el manejo seguro en el shock room. Revisa las explicaciones para pulir detalles técnicos.";
+            } else {
+                msgElement.innerHTML = "⚠️ <strong>Es necesario revisar los conceptos.</strong> El descenso intempestivo de la presión arterial o la elección inadecuada de fármacos compromete la perfusión del paciente neurocrítico o cardiovascular.";
+            }
+        }
+    </script>
+</body>
+</html>
